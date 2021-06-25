@@ -8,7 +8,7 @@ import torchtext.vocab as vb
 
 import sys
 sys.path.append('..')
-import d2lzh_pytorch as d2lzh
+import sentiment_analyse_example.utils as utils
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -138,7 +138,7 @@ lr, num_epochs = 0.01, 10
 # 要过滤掉不计算梯度的embedding参数
 optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
 loss = nn.CrossEntropyLoss()
-d2lzh.train(train_iter, test_iter, net, loss, optimizer, device, num_epochs)
+utils.train(train_iter, test_iter, net, loss, optimizer, device, num_epochs)
 
 
 # 预测函数
