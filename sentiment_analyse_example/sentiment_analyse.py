@@ -1,3 +1,4 @@
+import sentiment_analyse_example.utils as utils
 import os
 import random
 import torch
@@ -8,11 +9,9 @@ import torchtext.vocab as vb
 
 import sys
 sys.path.append('..')
-import sentiment_analyse_example.utils as utils
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = d2l.try_gpu()
 
 DATA_ROOT = '../../data'
 
@@ -54,6 +53,7 @@ def get_vocab_imdb(data):
 
 
 vocab = get_vocab_imdb(train_data)
+print('# words in vocab:', 46151)
 
 
 def preprocess_imdb(data, vocab):
@@ -69,7 +69,7 @@ def preprocess_imdb(data, vocab):
     return features, labels
 
 
-batch_size = 8
+batch_size = 32
 train_set = data.TensorDataset(*preprocess_imdb(train_data, vocab))
 test_set = data.TensorDataset(*preprocess_imdb(test_data, vocab))
 train_iter = data.DataLoader(train_set, batch_size, shuffle=True)
@@ -80,7 +80,7 @@ for X, y in train_iter:
     print('X: %s, y: %s' % (X.shape, y.shape))
     break
 
-'batches: ', len(train_iter)
+print('batches: ', len(train_iter))
 
 
 # 创建模型：双向循环神经网络
@@ -106,7 +106,7 @@ class BiRNN(nn.Module):
 
 
 embed_size, num_hiddens, num_layers = 100, 100, 2
-net = BiRNN(vocab, embed_size, num_hiddens, num_hiddens)
+net = BiRNN(vocab, embed_size, num_hiddens, num_layers)
 
 # 加载预训练的词向量
 glove_vocab = vb.GloVe(name='6B', dim=100, cache=os.path.join(DATA_ROOT, 'glove'))
@@ -148,6 +148,7 @@ def predict_sentiment(net, vocab, sentence):
     sentence = torch.tensor([vocab[word] for word in sentence], device=device)
     label = torch.argmax(net(sentence.view((1, -1))), dim=1)
     return 'positive' if label.item() == 1 else 'negative'
+
 
 predict_sentiment(net, vocab, ['The', 'heroine', 'is', 'a', 'bit', 'ugly'])
 predict_sentiment(net, vocab, ['Poor', 'actors'])

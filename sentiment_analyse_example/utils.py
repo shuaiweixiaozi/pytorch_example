@@ -699,7 +699,8 @@ def train(train_iter, test_iter, net, loss, optimizer, device, num_epochs):
     batch_count = 0
     for epoch in range(num_epochs):
         train_l_sum, train_acc_sum, n, start = 0.0, 0.0, 0, time.time()
-        for X, y in train_iter:
+        for batch_id, (X, y) in enumerate(train_iter):
+            # print("batch id: %s / %s" % (batch_id, len(train_iter)))
             X = X.to(device)
             y = y.to(device)
             y_hat = net(X)
